@@ -46,9 +46,10 @@ var TreadmillCalc = React.createClass( {
     };
   },
   mpmToMPH: function(data){
+    this.setState({message:''});
     var raw = data.split(":");
     if(raw.length != 2){
-/*      this.setState(message:"No good.");*/
+      this.setState({message:'No good.'});
       return;
     }
     var min = parseFloat(raw[0]);
@@ -75,8 +76,11 @@ var TreadmillCalc = React.createClass( {
     this.setState({mpm:this.mphToMPM(data)});
   },
   onMPMChange: function(){
-    var data = this.state.mpm;
-    this.setState({mph:this.mpmToMPH(data).toString()});
+    var data = this.mpmToMPH(this.state.mpm);
+    if(isNaN(data)){
+      return;
+    }
+    this.setState({mph:data.toString()});
   },
   render() {
     return (
