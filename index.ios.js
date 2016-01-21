@@ -26,6 +26,7 @@
 'use strict';
 
 var React = require('react-native');
+var RegexTextInput = require('./RegexTextInput')
 
 var {
   AppRegistry,
@@ -40,8 +41,8 @@ var {
 var TreadmillCalc = React.createClass( {
   getInitialState: function(){
     return{
-      mph: '6.0',
-      mpm: '10:00',
+      mph: '',
+      mpm: '',
       message: '',
     };
   },
@@ -82,25 +83,36 @@ var TreadmillCalc = React.createClass( {
     }
     this.setState({mph:data.toString()});
   },
+  displayError: function(text){
+    this.setState({message:text});
+  },
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
           Welcome to TreadmillCalc.  Enter speed to find your pace!
         </Text>
-        <TextInput style={styles.dataField}
+        <RegexTextInput style={styles.dataField}
          onChangeText={(text)=>this.setState({
            mph: text,
          })}
-         onSubmitEditing={this.onMphChange}
+         onValidInput={this.onMphChange}
          value={this.state.mph}
+         placeholder='MPH'
+         errorText='Invalid mph'
+         regex='^\s*\d+\.\d\s*$'
+         onInvalidInput={this.displayError}
          />
-         <TextInput style={styles.dataField}
+         <RegexTextInput style={styles.dataField}
          onChangeText={(text)=>this.setState({
            mpm: text,
          })}
-         onSubmitEditing={this.onMPMChange}
+         onValidInput={this.onMPMChange}
          value={this.state.mpm}
+         placeholder='Minutes/Mile'
+         errorText='Invalid m/m'
+         regex='^\s*[1-5]?\d:[0-5][0-9]\s*$'
+         onInvalidInput={this.displayError}
          />
          <Text style={styles.error}>
           {this.state.message}
