@@ -90,8 +90,9 @@ var TreadmillCalc = React.createClass( {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to TreadmillCalc.  Enter speed to find your pace!
+          Convert speed to pace!
         </Text>
+        <View style={styles.inputRow}>
         <RegexTextInput style={styles.dataField}
          onChangeText={(text)=>this.setState({
            mph: text,
@@ -114,6 +115,7 @@ var TreadmillCalc = React.createClass( {
          regex='^\s*[1-5]?\d:[0-5][0-9]\s*$'
          onInvalidInput={this.displayError}
          />
+         </View>
          <Text style={styles.error}>
           {this.state.message}
          </Text>
@@ -127,7 +129,15 @@ var styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#2A6BCC',
+    padding: 20
+  },
+  inputRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    justifyContent: 'flex-start',
+    padding: 20,
   },
   welcome: {
     fontSize: 20,
@@ -141,10 +151,13 @@ var styles = StyleSheet.create({
     color: 'red',
   },
   dataField: {
-    height: 40,
     textAlign: 'center',
     borderColor: 'gray',
     borderWidth: 1,
+    backgroundColor: 'white',
+    width: 150,
+    height: 60,
+    padding: 20,
   },
 });
 
