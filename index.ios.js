@@ -34,17 +34,55 @@ var {
   StyleSheet,
   Text,
   TextInput,
+  ListView,
   View,
 } = React;
 
+var FIVEK = ["1", "2", "3", "3.1"];
+var TENK = ["2", "4", "6", "6.1"];
+var HALFM = ["4", "8", "12", "13.1"];
+var FULLM = ["8", "16", "25", "26.2"];
 
 var TreadmillCalc = React.createClass( {
   getInitialState: function(){
-    return{
+    var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    return {
       mph: '',
       mpm: '',
       message: '',
+      dataSource: ds.cloneWithRows(this._genRows('',FIVEK)),
     };
+  },
+  _splitData: [{dist:"N/A",time:"N/A"}],
+
+  componentWillMount: function(){
+    this._splitData = [{}];
+  },
+  multiplyTimeString: function(timeStr,distance){
+    if(timeStr.length == 0){
+      return '-';
+    }
+    // taken from stackoverfloe: http://stackoverflow.com/a/29967277
+    var a = timeStr.split(':'); // split it at the colons
+    var distanceNum = parseFloat(distance);
+
+    // minutes are worth 60 seconds.
+    var seconds = (+a[0]) * 60 + (+a[1]);
+    var newSeconds= Math.floor(distanceNum*seconds);
+
+    // multiply by 1000 because Date() requires miliseconds
+    var date = new Date(newSeconds * 1000);
+    var hh = date.getUTCHours();
+    var mm = date.getUTCMinutes();
+    var ss = date.getSeconds();
+    // If you were building a timestamp instead of a duration, you would uncomment the following line to get 12-hour (not 24) time
+    // if (hh > 12) {hh = hh % 12;}
+    // These lines ensure you have two-digits
+    if (hh < 10) {hh = "0"+hh;}
+    if (mm < 10) {mm = "0"+mm;}
+    if (ss < 10) {ss = "0"+ss;}
+    // This formats your string to HH:MM:SS
+    return hh+":"+mm+":"+ss;
   },
   mpmToMPH: function(data){
     this.setState({message:''});
@@ -74,14 +112,19 @@ var TreadmillCalc = React.createClass( {
       this.setState({message:'Not a valid MPH'});
       return;
     }
-    this.setState({mpm:this.mphToMPM(data)});
+    var tmp = this.mphToMPM(data);
+    this.setState({mpm:tmp,
+    dataSource:this.state.dataSource.cloneWithRows(this._genRows(tmp,FIVEK))});
   },
   onMPMChange: function(){
     var data = this.mpmToMPH(this.state.mpm);
     if(isNaN(data)){
       return;
     }
-    this.setState({mph:data.toString()});
+    this.setState(
+      {mph:data.toString(),
+       dataSource:this.state.dataSource.cloneWithRows(this._genRows(this.state.mpm,FIVEK))}
+      );
   },
   displayError: function(text){
     this.setState({message:text});
@@ -119,9 +162,30 @@ var TreadmillCalc = React.createClass( {
          <Text style={styles.error}>
           {this.state.message}
          </Text>
+         <ListView
+          dataSource={this.state.dataSource}
+          renderRow={this.renderRow}
+          />
       </View>
     );
-  }
+  },
+  renderRow: function(rowData: string, sectionID: number, rowID: number) {
+    return(
+      <View style={styles.row}>
+        <Text style={styles.welcome}>{rowData.dist}</Text>
+        <Text style={styles.welcome}>{rowData.time}</Text>
+      </View>
+      );
+  },
+  _genRows: function(time, distances){
+    this._splitData=[{}];
+    for(var ii = 0; ii < distances.length; ii++){
+      var display = this.multiplyTimeString(time,distances[ii]);
+      var tmp = {dist: distances[ii], time: display};
+      this._splitData.push(tmp);
+    }
+    return this._splitData;
+  },
 });
 
 var styles = StyleSheet.create({
@@ -135,9 +199,7 @@ var styles = StyleSheet.create({
   inputRow: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'stretch',
-    justifyContent: 'flex-start',
-    padding: 20,
+    justifyContent: 'space-between',
   },
   welcome: {
     fontSize: 20,
@@ -155,9 +217,15 @@ var styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     backgroundColor: 'white',
-    width: 150,
+    width: 140,
     height: 60,
     padding: 20,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 10,
+    backgroundColor: '#2A6BCC',
   },
 });
 
