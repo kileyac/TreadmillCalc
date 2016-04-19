@@ -172,8 +172,8 @@ var TreadmillCalc = React.createClass( {
   renderRow: function(rowData: string, sectionID: number, rowID: number) {
     return(
       <View style={styles.row}>
-        <Text style={styles.welcome}>{rowData.dist}</Text>
-        <Text style={styles.welcome}>{rowData.time}</Text>
+        <Text style={styles.rowText}>{rowData.dist}</Text>
+        <Text style={styles.rowText}>{rowData.time}</Text>
       </View>
       );
   },
@@ -226,6 +226,12 @@ var styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 10,
     backgroundColor: '#2A6BCC',
+  },
+  rowText: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
+    color: 'white',
   },
 });
 
